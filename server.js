@@ -16,7 +16,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const router = express.Router();
 
-const enableCORS = function (req, res, next) {
+const enableCORS = function(req, res, next) {
   if (!process.env.DISABLE_XORIGIN) {
     const allowedOrigins = ["https://www.freecodecamp.org"];
     const origin = req.headers.origin;
@@ -40,15 +40,15 @@ const TIMEOUT = 10000;
 app.use(bodyParser.urlencoded({ extended: "false" }));
 app.use(bodyParser.json());
 
-app.get("/", function (req, res) {
+app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname, "views", "index.html"));
 });
 
-router.get("/file/*?", function (req, res, next) {
+router.get("/file/*?", function(req, res, next) {
   if (req.params[0] === ".env") {
     return next({ status: 401, message: "ACCESS DENIED" });
   }
-  fs.readFile(path.join(__dirname, req.params[0]), function (err, data) {
+  fs.readFile(path.join(__dirname, req.params[0]), function(err, data) {
     if (err) {
       return next(err);
     }
@@ -56,7 +56,7 @@ router.get("/file/*?", function (req, res, next) {
   });
 });
 
-router.get("/is-mongoose-ok", function (req, res) {
+router.get("/is-mongoose-ok", function(req, res) {
   if (mongoose) {
     res.json({ isMongooseOk: !!mongoose.connection.readyState });
   } else {
@@ -66,14 +66,14 @@ router.get("/is-mongoose-ok", function (req, res) {
 
 const Person = require("./myApp.js").PersonModel;
 
-router.use(function (req, res, next) {
+router.use(function(req, res, next) {
   if (req.method !== "OPTIONS" && Person.modelName !== "Person") {
     return next({ message: "Person Model is not correct" });
   }
   next();
 });
 
-router.post("/mongoose-model", function (req, res, next) {
+router.post("/mongoose-model", function(req, res, next) {
   // try to create a new instance based on their model
   // verify it's correctly defined in some way
   let p;
@@ -82,12 +82,12 @@ router.post("/mongoose-model", function (req, res, next) {
 });
 
 const createPerson = require("./myApp.js").createAndSavePerson;
-router.get("/create-and-save-person", function (req, res, next) {
+router.get("/create-and-save-person", function(req, res, next) {
   // in case of incorrect function use wait timeout then respond
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
-  createPerson(function (err, data) {
+  createPerson(function(err, data) {
     clearTimeout(t);
     if (err) {
       return next(err);
@@ -96,7 +96,7 @@ router.get("/create-and-save-person", function (req, res, next) {
       console.log("Missing `done()` argument");
       return next({ message: "Missing callback argument" });
     }
-    Person.findById(data._id, function (err, pers) {
+    Person.findById(data._id, function(err, pers) {
       if (err) {
         return next(err);
       }
@@ -107,8 +107,8 @@ router.get("/create-and-save-person", function (req, res, next) {
 });
 
 const createPeople = require("./myApp.js").createManyPeople;
-router.post("/create-many-people", function (req, res, next) {
-  Person.remove({}, function (err) {
+router.post("/create-many-people", function(req, res, next) {
+  Person.remove({}, function(err) {
     if (err) {
       return next(err);
     }
@@ -116,7 +116,7 @@ router.post("/create-many-people", function (req, res, next) {
     let t = setTimeout(() => {
       next({ message: "timeout" });
     }, TIMEOUT);
-    createPeople(req.body, function (err, data) {
+    createPeople(req.body, function(err, data) {
       clearTimeout(t);
       if (err) {
         return next(err);
@@ -125,7 +125,7 @@ router.post("/create-many-people", function (req, res, next) {
         console.log("Missing `done()` argument");
         return next({ message: "Missing callback argument" });
       }
-      Person.find({}, function (err, pers) {
+      Person.find({}, function(err, pers) {
         if (err) {
           return next(err);
         }
@@ -137,15 +137,15 @@ router.post("/create-many-people", function (req, res, next) {
 });
 
 const findByName = require("./myApp.js").findPeopleByName;
-router.post("/find-all-by-name", function (req, res, next) {
+router.post("/find-all-by-name", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
-  Person.create(req.body, function (err, pers) {
+  Person.create(req.body, function(err, pers) {
     if (err) {
       return next(err);
     }
-    findByName(pers.name, function (err, data) {
+    findByName(pers.name, function(err, data) {
       clearTimeout(t);
       if (err) {
         return next(err);
@@ -161,16 +161,16 @@ router.post("/find-all-by-name", function (req, res, next) {
 });
 
 const findByFood = require("./myApp.js").findOneByFood;
-router.post("/find-one-by-food", function (req, res, next) {
+router.post("/find-one-by-food", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person(req.body);
-  p.save(function (err, pers) {
+  p.save(function(err, pers) {
     if (err) {
       return next(err);
     }
-    findByFood(pers.favoriteFoods[0], function (err, data) {
+    findByFood(pers.favoriteFoods[0], function(err, data) {
       clearTimeout(t);
       if (err) {
         return next(err);
@@ -186,16 +186,16 @@ router.post("/find-one-by-food", function (req, res, next) {
 });
 
 const findById = require("./myApp.js").findPersonById;
-router.get("/find-by-id", function (req, res, next) {
+router.get("/find-by-id", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person({ name: "test", age: 0, favoriteFoods: ["none"] });
-  p.save(function (err, pers) {
+  p.save(function(err, pers) {
     if (err) {
       return next(err);
     }
-    findById(pers._id, function (err, data) {
+    findById(pers._id, function(err, data) {
       clearTimeout(t);
       if (err) {
         return next(err);
@@ -211,17 +211,17 @@ router.get("/find-by-id", function (req, res, next) {
 });
 
 const findEdit = require("./myApp.js").findEditThenSave;
-router.post("/find-edit-save", function (req, res, next) {
+router.post("/find-edit-save", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person(req.body);
-  p.save(function (err, pers) {
+  p.save(function(err, pers) {
     if (err) {
       return next(err);
     }
     try {
-      findEdit(pers._id, function (err, data) {
+      findEdit(pers._id, function(err, data) {
         clearTimeout(t);
         if (err) {
           return next(err);
@@ -241,17 +241,17 @@ router.post("/find-edit-save", function (req, res, next) {
 });
 
 const update = require("./myApp.js").findAndUpdate;
-router.post("/find-one-update", function (req, res, next) {
+router.post("/find-one-update", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
   let p = new Person(req.body);
-  p.save(function (err, pers) {
+  p.save(function(err, pers) {
     if (err) {
       return next(err);
     }
     try {
-      update(pers.name, function (err, data) {
+      update(pers.name, function(err, data) {
         clearTimeout(t);
         if (err) {
           return next(err);
@@ -271,8 +271,8 @@ router.post("/find-one-update", function (req, res, next) {
 });
 
 const removeOne = require("./myApp.js").removeById;
-router.post("/remove-one-person", function (req, res, next) {
-  Person.remove({}, function (err) {
+router.post("/remove-one-person", function(req, res, next) {
+  Person.remove({}, function(err) {
     if (err) {
       return next(err);
     }
@@ -280,12 +280,12 @@ router.post("/remove-one-person", function (req, res, next) {
       next({ message: "timeout" });
     }, TIMEOUT);
     let p = new Person(req.body);
-    p.save(function (err, pers) {
+    p.save(function(err, pers) {
       if (err) {
         return next(err);
       }
       try {
-        removeOne(pers._id, function (err, data) {
+        removeOne(pers._id, function(err, data) {
           clearTimeout(t);
           if (err) {
             return next(err);
@@ -295,7 +295,7 @@ router.post("/remove-one-person", function (req, res, next) {
             return next({ message: "Missing callback argument" });
           }
           console.log(data);
-          Person.count(function (err, cnt) {
+          Person.count(function(err, cnt) {
             if (err) {
               return next(err);
             }
@@ -314,20 +314,20 @@ router.post("/remove-one-person", function (req, res, next) {
 });
 
 const removeMany = require("./myApp.js").removeManyPeople;
-router.post("/remove-many-people", function (req, res, next) {
-  Person.remove({}, function (err) {
+router.post("/remove-many-people", function(req, res, next) {
+  Person.remove({}, function(err) {
     if (err) {
       return next(err);
     }
     let t = setTimeout(() => {
       next({ message: "timeout" });
     }, TIMEOUT);
-    Person.create(req.body, function (err, pers) {
+    Person.create(req.body, function(err, pers) {
       if (err) {
         return next(err);
       }
       try {
-        removeMany(function (err, data) {
+        removeMany(function(err, data) {
           clearTimeout(t);
           if (err) {
             return next(err);
@@ -336,7 +336,7 @@ router.post("/remove-many-people", function (req, res, next) {
             console.log("Missing `done()` argument");
             return next({ message: "Missing callback argument" });
           }
-          Person.count(function (err, cnt) {
+          Person.count(function(err, cnt) {
             if (err) {
               return next(err);
             }
@@ -365,20 +365,20 @@ router.post("/remove-many-people", function (req, res, next) {
 });
 
 const chain = require("./myApp.js").queryChain;
-router.post("/query-tools", function (req, res, next) {
+router.post("/query-tools", function(req, res, next) {
   let t = setTimeout(() => {
     next({ message: "timeout" });
   }, TIMEOUT);
-  Person.remove({}, function (err) {
+  Person.remove({}, function(err) {
     if (err) {
       return next(err);
     }
-    Person.create(req.body, function (err, pers) {
+    Person.create(req.body, function(err, pers) {
       if (err) {
         return next(err);
       }
       try {
-        chain(function (err, data) {
+        chain(function(err, data) {
           clearTimeout(t);
           if (err) {
             return next(err);
@@ -400,7 +400,7 @@ router.post("/query-tools", function (req, res, next) {
 app.use("/_api", enableCORS, router);
 
 // Error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   if (err) {
     res
       .status(err.status || 500)
@@ -410,7 +410,7 @@ app.use(function (err, req, res, next) {
 });
 
 // Unmatched routes handler
-app.use(function (req, res) {
+app.use(function(req, res) {
   if (req.method.toLowerCase() === "options") {
     res.end();
   } else {
@@ -418,7 +418,7 @@ app.use(function (req, res) {
   }
 });
 
-const listener = app.listen(process.env.PORT || 3000, function () {
+const listener = app.listen(process.env.PORT || 3000, function() {
   console.log("Your app is listening on port " + listener.address().port);
 });
 
