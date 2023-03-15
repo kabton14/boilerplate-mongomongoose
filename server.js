@@ -8,7 +8,6 @@ const app = express();
 let mongoose;
 try {
   mongoose = require("mongoose");
-  mongoose.connect(process.env['MONGO_URI'], { useNewUrlParser: true, useUnifiedTopology: true });
 } catch (e) {
   console.log(e);
 }
