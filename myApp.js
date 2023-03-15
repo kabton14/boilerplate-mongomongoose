@@ -3,7 +3,7 @@ const Schema = mongoose.schema;
 
 
 const personSchema = new Schema({
-  name: String,
+  name: {type: String, required: true},
   age: Number,
   favoriteFoods: [String],
 });
